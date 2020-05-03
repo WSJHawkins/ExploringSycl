@@ -3,7 +3,7 @@
 This directory contains all my Lattice Boltzmann Code. The OpenCL and OpenMP versions were written during COMS30006 a unit in High Performance Computing at the University of Bristol.
 
 ## Compilation
-Each folder contains a Makefile which will compile the code. Each has a default compiler set but this can be overridden by passing a ```COMPILER=``` variable to the make command.
+Each folder contains a Makefile which will compile the code. Each has a default compiler set but this can be overridden by passing a ```COMPILER=``` variable to the make command. The optimisation level is set for each Makefile but if you wish to override this just enter ```OptimisationLevel=O3``` changing out ``O3``` for your desired level.
 
 For OpenCL and OpenMP you can choose between gcc and icc by passing ```COMPILER=gcc``` and ```COMPILER=icc``` respectively.
 
