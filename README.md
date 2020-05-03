@@ -1,6 +1,6 @@
 # Exploring The Sycl Programming Model
 
-This repository contains all the code needed to replicate any of my findings from my dissertation.
+This repository contains all the code needed to replicate any of my findings from my dissertation. The instructions to run each program are found in the respective folders.
 
 I have ported an OpenCL version of a Lattice Boltzmann Code to SYCL. An OpenMP version is also provided for comparison.
 
