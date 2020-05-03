@@ -2,19 +2,16 @@
 
 EXE=d2q9-bgk
 
-CC=icc
-CFLAGS= -std=c99 -Wall -xhost -Ofast -qopenmp
-LIBS = -lm
-
 COMPILER?=icc
+OptimisationLevel ?= Ofast
 
 ifeq ($(COMPILER), icc)
 CC=icc
-CFLAGS= -std=c99 -Wall -xhost -Ofast -qopenmp
+CFLAGS= -std=c99 -Wall -xhost -$(OptimisationLevel) -qopenmp
 endif
 ifeq ($(COMPILER), gcc)
 CC=gcc
-CFLAGS= -std=c99 -Wall -Ofast -march=native -fopenmp
+CFLAGS= -std=c99 -Wall -$(OptimisationLevel) -march=native -fopenmp
 endif
 
 LIBS = -lm
