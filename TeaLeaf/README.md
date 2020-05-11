@@ -10,3 +10,7 @@ The optimisation level is set at ```O3``` but if you wish to override this just 
 
 ## To Run
 To run the code enter ```./tealeaf```. It will run based on the parameters in the file ```tea.in```. For any more information on TeaLeaf check out https://github.com/UoB-HPC/TeaLeaf
+
+## Benchmarks
+The benchmarks provided in this repository have been modified from the originals found at: https://github.com/UK-MAC/TeaLeaf_ref
+This offers no change to the functionality but instead is a change of variable names to keep them inline with how the C based host code parses the input file. The host code in this repository has also been changed to default to the C Kernels when nothing is specified.
