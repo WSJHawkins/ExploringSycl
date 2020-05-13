@@ -97,7 +97,7 @@ void run_kernel_finalise(Chunk* chunk, Settings* settings)
               &(chunk->cell_dy), &(chunk->vertex_dx), &(chunk->vertex_dy),
               &(chunk->vertex_x), &(chunk->vertex_y), &(chunk->ext->comms_buffer),
               (chunk->cg_alphas), (chunk->cg_betas), (chunk->cheby_alphas),
-              (chunk->cheby_betas),&(device_queue)); //queue not needed here
+              (chunk->cheby_betas),&(device_queue));
 }
 
 // Solver-wide kernels

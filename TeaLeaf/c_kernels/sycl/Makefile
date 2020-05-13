@@ -6,7 +6,7 @@ OptimisationLevel ?= O3
 
 ifeq ($(SYCL_COMPILER), LLVM)
 KERNEL_COMPILER = clang++
-KERNEL_FLAGS	  = -$(OptimisationLevel) -std=c++11 -lOpenCL -fsycl --gcc-toolchain=/nfs/software/x86_64/gcc/7.4.0 -I$(KERNELS_PATH)
+KERNEL_FLAGS	  = -$(OptimisationLevel) -std=c++14 -lOpenCL -fsycl -I$(KERNELS_PATH)
 TL_FLAGS	:= $(KERNEL_FLAGS)
 endif
 
@@ -17,7 +17,7 @@ ifeq ($(hip_Platform), cpu)
 KERNEL_FLAGS	  = -std=c++17 -$(OptimisationLevel) --hipsycl-platform=$(hip_Platform) -I$(KERNELS_PATH) -fopenmp
 else
 hip_Arch ?= gfx906
-KERNEL_FLAGS	  = -std=c++17 -$(OptimisationLevel) --hipsycl-gpu-arch=$(hip_Arch) --hipsycl-platform=$(hip_Platform) -I$(KERNELS_PATH) -g
+KERNEL_FLAGS	  = -std=c++17 -$(OptimisationLevel) --hipsycl-gpu-arch=$(hip_Arch) --hipsycl-platform=$(hip_Platform) -I$(KERNELS_PATH)
 endif
 TL_FLAGS	:= $(KERNEL_FLAGS)
 endif

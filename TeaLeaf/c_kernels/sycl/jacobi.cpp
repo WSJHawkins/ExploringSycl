@@ -59,8 +59,10 @@ void jacobi_iterate(
         double* error, queue& device_queue)
 {
 
-  double* tmpArray = new double[x*y];
-	buffer<double, 1> tmpArrayBuff{tmpArray, range<1>{(size_t)x*y}};
+	size_t wgroup_size = WORK_GROUP_SIZE; //define global
+	auto len = uBuff.get_count();
+	auto n_wgroups = floor((len + wgroup_size - 1) / wgroup_size);
+	buffer<double, 1> tmpArrayBuff{range<1>{(size_t)n_wgroups}};
 
   device_queue.submit([&](handler &cgh) {
     auto r            = rBuff.get_access<access::mode::read>(cgh);
@@ -68,30 +70,48 @@ void jacobi_iterate(
     auto u0           = u0Buff.get_access<access::mode::read>(cgh);
     auto kx           = kxBuff.get_access<access::mode::read>(cgh);
     auto ky           = kyBuff.get_access<access::mode::read>(cgh);
-    auto tmpArrayAcc     = tmpArrayBuff.get_access<access::mode::discard_write>(cgh);
+		auto global_mem = tmpArrayBuff.get_access<access::mode::discard_write>(cgh);
+		accessor <double, 1, access::mode::read_write, access::target::local> local_mem(range<1>(wgroup_size), cgh);
 
-    auto myRange = range<1>(x*y);
+    auto myRange = nd_range<1>(n_wgroups * wgroup_size, wgroup_size);
+    cgh.parallel_for<class jacobi_iterate>(myRange, [=] (nd_item<1> item){
 
-    cgh.parallel_for<class jacobi_iterate>( myRange, [=] (id<1> idx){
+			size_t local_id = item.get_local_linear_id();
+			size_t global_id = item.get_global_linear_id();
+			local_mem[local_id] = 0;
 
-      tmpArrayAcc[idx[0]] = 0;
-
-      const size_t kk = idx[0] % x;
-      const size_t jj = idx[0] / x;
+			const size_t kk = global_id % x;
+			const size_t jj = global_id / x;
       if(kk >= halo_depth && kk < x - halo_depth &&
          jj >= halo_depth && jj < y - halo_depth)
       {
-        u[idx[0]] = (u0[idx[0]]
-            + (kx[idx[0]+1]*r[idx[0]+1] + kx[idx[0]]*r[idx[0]-1])
-            + (ky[idx[0]+x]*r[idx[0]+x] + ky[idx[0]]*r[idx[0]-x]))
-            / (1.0 + (kx[idx[0]]+kx[idx[0]+1]) + (ky[idx[0]]+ky[idx[0]+x]));
+        u[global_id] = (u0[global_id]
+            + (kx[global_id+1]*r[global_id+1] + kx[global_id]*r[global_id-1])
+            + (ky[global_id+x]*r[global_id+x] + ky[global_id]*r[global_id-x]))
+            / (1.0 + (kx[global_id]+kx[global_id+1]) + (ky[global_id]+ky[global_id+x]));
 
-        tmpArrayAcc[idx[0]] += cl::sycl::fabs((u[idx[0]]-r[idx[0]])); // fabs is float version of abs
+        local_mem[local_id] += cl::sycl::fabs((u[global_id]-r[global_id])); // fabs is float version of abs
       }
+
+			item.barrier(access::fence_space::local_space);
+
+			for (size_t stride = 1; stride < wgroup_size; stride *= 2) {
+				 auto idx = 2 * stride * local_id;
+				 if (idx < wgroup_size) {
+						local_mem[idx] = local_mem[idx] + local_mem[idx + stride];
+				 }
+
+				 item.barrier(access::fence_space::local_space);
+			}
+
+			if (local_id == 0) {
+				 global_mem[item.get_group_linear_id()] = local_mem[0];
+			}
+
     });//end of parallel for
   });//end of queue
 
-  *error += SyclHelper::reduceArray(tmpArrayBuff, device_queue);
+  *error = SyclHelper::reduceArray(tmpArrayBuff, device_queue);
 }
 
 // Copies u into r

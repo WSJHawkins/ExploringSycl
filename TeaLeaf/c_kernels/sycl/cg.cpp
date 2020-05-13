@@ -71,8 +71,11 @@ void cg_init_others(
         SyclBuffer& kyBuff, SyclBuffer& pBuff, SyclBuffer& rBuff, SyclBuffer& uBuff, SyclBuffer& wBuff,
         double* rro, queue& device_queue)
 {
-    double* tmpArray = new double[x*y];
-    buffer<double, 1> tmpArrayBuff{tmpArray, range<1>{(size_t)x*y}};
+  size_t wgroup_size = WORK_GROUP_SIZE; //define global
+  auto len = rBuff.get_count();
+  auto n_wgroups = floor((len + wgroup_size - 1) / wgroup_size);
+  buffer<double, 1> tmpArrayBuff{range<1>{(size_t)n_wgroups}};
+
     device_queue.submit([&](handler &cgh) {
       auto r            = rBuff.get_access<access::mode::read_write>(cgh);
       auto w            = wBuff.get_access<access::mode::read_write>(cgh);
@@ -80,28 +83,46 @@ void cg_init_others(
       auto p            = pBuff.get_access<access::mode::read_write>(cgh);
       auto kx           = kxBuff.get_access<access::mode::read>(cgh);
       auto ky           = kyBuff.get_access<access::mode::read>(cgh);
-      auto tmpArrayAcc     = tmpArrayBuff.get_access<access::mode::discard_write>(cgh);
+      auto global_mem = tmpArrayBuff.get_access<access::mode::discard_write>(cgh);
+      accessor <double, 1, access::mode::read_write, access::target::local> local_mem(range<1>(wgroup_size), cgh);
 
-      auto myRange = range<1>(x*y);
+      auto myRange = nd_range<1>(n_wgroups * wgroup_size, wgroup_size);
+      cgh.parallel_for<class cg_init_others>( myRange, [=] (nd_item<1> item){
 
-      cgh.parallel_for<class cg_init_others>( myRange, [=] (id<1> idx){
+        size_t local_id = item.get_local_linear_id();
+        size_t global_id = item.get_global_linear_id();
+        local_mem[local_id] = 0;
 
-        tmpArrayAcc[idx[0]] = 0;
-
-        const size_t kk = idx[0] % x;
-        const size_t jj = idx[0] / x;
+        const size_t kk = global_id % x;
+        const size_t jj = global_id / x;
 
         if(kk >= halo_depth && kk < x - halo_depth &&
            jj >= halo_depth && jj < y - halo_depth)
         {
             //smvp uses kx and ky and INDEX and dims.x and dims.y!!!!
-            int index = idx[0];
+            int index = global_id;
             const double smvp = SMVP(u);
-            w[idx[0]] = smvp;
-            r[idx[0]] = u[idx[0]]-w[idx[0]];
-            p[idx[0]] = r[idx[0]];
-            tmpArrayAcc[idx[0]] = r[idx[0]]*p[idx[0]];
+            w[global_id] = smvp;
+            r[global_id] = u[global_id]-w[global_id];
+            p[global_id] = r[global_id];
+            local_mem[local_id] = r[global_id]*p[global_id];
         }
+
+        item.barrier(access::fence_space::local_space);
+
+        for (size_t stride = 1; stride < wgroup_size; stride *= 2) {
+           auto idx = 2 * stride * local_id;
+           if (idx < wgroup_size) {
+              local_mem[idx] = local_mem[idx] + local_mem[idx + stride];
+           }
+
+           item.barrier(access::fence_space::local_space);
+        }
+
+        if (local_id == 0) {
+           global_mem[item.get_group_linear_id()] = local_mem[0];
+        }
+
       });//end of parallel for
     });//end of queue
 
@@ -113,33 +134,55 @@ void cg_calc_w(
         const int x, const int y, const int halo_depth, SyclBuffer& wBuff,
         SyclBuffer& pBuff, SyclBuffer& kxBuff, SyclBuffer& kyBuff, double* pw, queue& device_queue)
 {
-    double* tmpArray = new double[x*y];
-    buffer<double, 1> tmpArrayBuff{tmpArray, range<1>{(size_t)x*y}};
+  size_t wgroup_size = WORK_GROUP_SIZE; //define global
+  auto len = wBuff.get_count();
+  auto n_wgroups = floor((len + wgroup_size - 1) / wgroup_size);
+  buffer<double, 1> tmpArrayBuff{range<1>{(size_t)n_wgroups}};
+
     device_queue.submit([&](handler &cgh) {
       auto w            = wBuff.get_access<access::mode::read_write>(cgh);
       auto p            = pBuff.get_access<access::mode::read>(cgh);
       auto kx           = kxBuff.get_access<access::mode::read>(cgh);
       auto ky           = kyBuff.get_access<access::mode::read>(cgh);
-      auto tmpArrayAcc     = tmpArrayBuff.get_access<access::mode::discard_write>(cgh);
+      auto global_mem = tmpArrayBuff.get_access<access::mode::discard_write>(cgh);
+      accessor <double, 1, access::mode::read_write, access::target::local> local_mem(range<1>(wgroup_size), cgh);
 
-      auto myRange = range<1>(x*y);
+      auto myRange = nd_range<1>(n_wgroups * wgroup_size, wgroup_size);
 
-      cgh.parallel_for<class cg_calc_w>( myRange, [=] (id<1> idx){
+      cgh.parallel_for<class cg_calc_w>( myRange, [=] (nd_item<1> item){
 
-        tmpArrayAcc[idx[0]] = 0;
+        size_t local_id = item.get_local_linear_id();
+        size_t global_id = item.get_global_linear_id();
+        local_mem[local_id] = 0;
 
-        const size_t kk = idx[0] % x;
-        const size_t jj = idx[0] / x;
+        const size_t kk = global_id % x;
+        const size_t jj = global_id / x;
 
         if(kk >= halo_depth && kk < x - halo_depth &&
            jj >= halo_depth && jj < y - halo_depth)
         {
             //smvp uses kx and ky and INDEX and dims.x and dims.y!!!!
-            int index = idx[0];
+            int index = global_id;
             const double smvp = SMVP(p);
-            w[idx[0]] = smvp;
-            tmpArrayAcc[idx[0]] =  w[idx[0]]*p[idx[0]];
+            w[global_id] = smvp;
+            local_mem[local_id] =  w[global_id]*p[global_id];
         }
+
+        item.barrier(access::fence_space::local_space);
+
+        for (size_t stride = 1; stride < wgroup_size; stride *= 2) {
+           auto idx = 2 * stride * local_id;
+           if (idx < wgroup_size) {
+              local_mem[idx] = local_mem[idx] + local_mem[idx + stride];
+           }
+
+           item.barrier(access::fence_space::local_space);
+        }
+
+        if (local_id == 0) {
+           global_mem[item.get_group_linear_id()] = local_mem[0];
+        }
+
       });//end of parallel for
     });//end of queue
     *pw = SyclHelper::reduceArray(tmpArrayBuff, device_queue);
@@ -151,36 +194,60 @@ void cg_calc_ur(
         SyclBuffer& rBuff, SyclBuffer& pBuff, SyclBuffer& wBuff, const double alpha,
         double* rrn, queue& device_queue)
 {
-    double* tmpArray = new double[x*y];
-    buffer<double, 1> tmpArrayBuff{tmpArray, range<1>{(size_t)x*y}};
+    size_t wgroup_size = WORK_GROUP_SIZE; //define global
+    auto len = rBuff.get_count();
+    auto n_wgroups = floor((len + wgroup_size - 1) / wgroup_size);
+    buffer<double, 1> tmpArrayBuff{range<1>{(size_t)n_wgroups}};
+
     device_queue.submit([&](handler &cgh) {
       auto w           = wBuff.get_access<access::mode::read_write>(cgh);
       auto p           = pBuff.get_access<access::mode::read>(cgh);
       auto u           = uBuff.get_access<access::mode::read_write>(cgh);
       auto r           = rBuff.get_access<access::mode::read_write>(cgh);
-      auto tmpArray    = tmpArrayBuff.get_access<access::mode::discard_write>(cgh);
+      auto global_mem = tmpArrayBuff.get_access<access::mode::discard_write>(cgh);
+      accessor <double, 1, access::mode::read_write, access::target::local> local_mem(range<1>(wgroup_size), cgh);
 
-      auto myRange = range<1>(x*y);
+      auto myRange = nd_range<1>(n_wgroups * wgroup_size, wgroup_size);
+      cgh.parallel_for<class cg_calc_ur>(myRange, [=] (nd_item<1> item){
 
-      cgh.parallel_for<class cg_calc_ur>( myRange, [=] (id<1> idx){
+        size_t local_id = item.get_local_linear_id();
+        size_t global_id = item.get_global_linear_id();
+        local_mem[local_id] = 0;
 
-        tmpArray[idx[0]] = 0;
-
-        const size_t kk = idx[0] % x;
-        const size_t jj = idx[0] / x;
+        const size_t kk = global_id % x;
+        const size_t jj = global_id / x;
 
         if(kk >= halo_depth && kk < x - halo_depth &&
            jj >= halo_depth && jj < y - halo_depth)
         {
-            u[idx[0]] += alpha*p[idx[0]];
-            r[idx[0]] -= alpha*w[idx[0]];
-            tmpArray[idx[0]] = r[idx[0]]*r[idx[0]];
+            u[global_id] += alpha*p[global_id];
+            r[global_id] -= alpha*w[global_id];
+            local_mem[local_id] = r[global_id]*r[global_id];
         }
+
+        item.barrier(access::fence_space::local_space);
+
+        for (size_t stride = 1; stride < wgroup_size; stride *= 2) {
+           auto idx = 2 * stride * local_id;
+           if (idx < wgroup_size) {
+              local_mem[idx] = local_mem[idx] + local_mem[idx + stride];
+           }
+
+           item.barrier(access::fence_space::local_space);
+        }
+
+        if (local_id == 0) {
+           global_mem[item.get_group_linear_id()] = local_mem[0];
+        }
+
       });//end of parallel for
     });//end of queue
 
     *rrn = SyclHelper::reduceArray(tmpArrayBuff, device_queue);
 }
+
+
+
 
 // Calculates a value for p
 void cg_calc_p(

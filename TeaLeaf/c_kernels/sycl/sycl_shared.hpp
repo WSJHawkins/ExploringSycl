@@ -5,6 +5,7 @@
 
 using namespace cl::sycl;
 
+#define WORK_GROUP_SIZE 64
 typedef buffer<double, 1> SyclBuffer;
 
 class SyclHelper
@@ -33,16 +34,10 @@ class SyclHelper
 
 		static double reduceArray(SyclBuffer& arrayBuff, queue& device_queue)
 		{
-			auto wgroup_size = device_queue.get_device().get_info<info::device::max_work_group_size>();
-			if (wgroup_size % 2 != 0) {
-				throw "Work-group size has to be even!";
-			}
-
-		  //size_t wgroup_size = 15; //define global
+		  size_t wgroup_size = WORK_GROUP_SIZE; //define global
 		  auto len = arrayBuff.get_count();
 		  while (len != 1) {
-		       // division rounding up
-		       auto n_wgroups = (len + wgroup_size - 1) / wgroup_size;
+		       auto n_wgroups = floor((len + wgroup_size - 1) / wgroup_size);
 		       device_queue.submit([&] (handler& cgh) {
 		          accessor <double, 1, access::mode::read_write, access::target::local>
 		                         local_mem(range<1>(wgroup_size), cgh);

@@ -43,7 +43,10 @@ void kernel_initialise(
             "Performing this solve with the Sycl %s solver\n",
             settings->solver_name);
 
+
+
     (*device_queue) = new queue(cl::sycl::default_selector{});
+    std::cout << "Running on " << (**device_queue).get_device().get_info<cl::sycl::info::device::name>()  << "\n";
     (*density0) = new SyclBuffer{range<1>{(size_t)x*y}};
     (*density) = new SyclBuffer{range<1>{(size_t)x*y}};
     (*energy0) = new SyclBuffer{range<1>{(size_t)x*y}};
