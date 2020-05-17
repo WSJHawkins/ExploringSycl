@@ -13,3 +13,6 @@ To run the code enter ```./tealeaf```. It will run based on the parameters in th
 
 ## Benchmarks
 The benchmarks provided in this repository have been modified from the originals found at: https://github.com/UK-MAC/TeaLeaf_ref. This offers no change to the functionality but instead is a change of variable names to keep them inline with how the C based host code parses the input file. The host code in this repository has also been changed to default to the C Kernels when nothing is specified.
+
+## Profiling 
+The code comes with a build in profiler for the kernels. To use this add ```-DENABLE_PROFILING``` to the ```OPTIONS``` param specified to the make command.
