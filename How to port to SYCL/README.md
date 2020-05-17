@@ -21,7 +21,7 @@ cl::sycl::buffer<float, 1> buffer{bufferHost, cl::sycl::range<1>{params->nx * pa
 
 **Step 4.** Add a SYCL device queue at the same point of the code as the OpenCL created a queue. Use the appropriate SYCL selector for the device you want to target.
 ```
-// Create OpenCL command queue
+//Create OpenCL command queue
 ocl->queue = clCreateCommandQueue(ocl->context, ocl->device, 0, &err);
 checkError(err, "creating command queue", __LINE__);
 
@@ -37,7 +37,7 @@ clSetKernelArg(ocl.propagate, 16, sizeof(cl_mem), &ocl.speeds7);
 clSetKernelArg(ocl.propagate, 17, sizeof(cl_mem), &ocl.speeds8);
 clSetKernelArg(ocl.propagate, 26, sizeof(cl_int), params.nx);
 
-// Enqueue kernel
+//Enqueue Kernel
 clEnqueueNDRangeKernel(ocl.queue, ocl.kernelFunc, 1, NULL, params.nx, NULL, 0, NULL, NULL);
                                    
 //OpenCL Kernel
@@ -59,7 +59,7 @@ device_queue.submit([&](handler &cgh){
     
 });//end of queue
 
-//SYCL Host accessor
+//SYCL Host Accessor
 auto hostAcc = buffer.get_access<access::mode::read>();
 ```
 
