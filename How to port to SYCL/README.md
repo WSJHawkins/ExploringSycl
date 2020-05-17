@@ -1,6 +1,6 @@
 # Porting a program to SYCL
 
-This README aims to help developers port programs to the SYCL Programming lanaguage. It uses the knowledge I have gain from my experience of porting a Lattice Boltzmann Code from OpenCL to SYCL and from porting the TeaLeaf mini-app from Kokkos to SYCL. Although the guide focusses on porting existing codes from OpenCL or Kokkos much of it will be useful for anyone writing a program in SYCL. A great resource for learning SYCL is https://github.com/codeplaysoftware/syclacademy. While writing SYCL code the SYCL reference card can be useful to have on hand(https://www.khronos.org/files/sycl/sycl-121-reference-card.pdf)
+This README aims to help developers port programs to the SYCL Programming lanaguage. It uses the knowledge I have gain from my experience of porting a Lattice Boltzmann Code from OpenCL to SYCL and from porting the TeaLeaf mini-app from Kokkos to SYCL. Although the guide focusses on porting existing codes from OpenCL or Kokkos much of it will be useful for anyone writing a program in SYCL. A great resource for learning SYCL is https://github.com/codeplaysoftware/syclacademy. While writing SYCL code the SYCL reference card can be useful to have on hand (https://www.khronos.org/files/sycl/sycl-121-reference-card.pdf).
 
 ## Starting from OpenCL
 **Step 1.** Convert the host code from C to C++
