@@ -165,3 +165,10 @@ auto hostAcc = buffer.get_access<access::mode::read>();
 ```
 
 ## Compilation
+There are many different SYCL implementations to choose from. This guide provides a guide on compiling with Codeplay's ComputeCPP, hipSYCL and Intel's LLVM SYCL, also known as DPC++ or OneAPI.
+
+**LLVM SYCL**
+
+**hipSYCL**
+
+**ComputeCPP
