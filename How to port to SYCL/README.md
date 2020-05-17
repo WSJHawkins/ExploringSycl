@@ -25,7 +25,6 @@ device_queue.submit([&](handler &cgh){
     
     auto myRange = range<1>(x*y);
     cgh.parallel_for<class example>( myRange, [=] (id<1> idx){
-    
         u[idx[0]] = energy[idx[0]]*density[idx[0]];
     });
     
@@ -48,7 +47,6 @@ device_queue.submit([&](handler &cgh) {
 
     auto myRange = range<1>(x*y);
     cgh.parallel_for<class reduction_example>( myRange, [=] (id<1> idx){
-      tmpArray[idx[0]] = 0;
         tmpArray[idx[0]] = buffer[idx[0]]*buffer[idx[0]];
     });//end of parallel for
     
