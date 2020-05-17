@@ -29,7 +29,7 @@ checkError(err, "creating command queue", __LINE__);
 cl::sycl::queue device_queue(cl::sycl::default_selector{});
 ```
 
-**Step 5.** Move the kernel code from the seperate file into the main program. Put the code at the point of the `clEnqueueNDRangeKernel`. Enclose each kernel in a device queue submit function. Any kernels arguments that were used for the kernel create accessors for these objects. Look at how these buffers are used and assign the minimum permisssions to the accessor. Once this is done the `clSetKernelArg` commands can be removed. The `clEnqueueReadBuffer` and `clEnqueueWriteBuffer` commands can be removed as SYCL will handle the memory movement as long as the accessors are correct. Any other OpenCL constructs can now be removed and the code should run. Check the compilation section for how to compile.
+**Step 5.** Move the kernel code from the seperate file into the main program. Put the code at the point of the `clEnqueueNDRangeKernel`. Enclose each kernel in a device queue submit function. Any buffers that were given as arguements to the kernel need accessors created for them. Look at how these buffers are used and assign the minimum permisssions to the accessor. Once this is done the `clSetKernelArg` commands can be removed. The `clEnqueueReadBuffer` and `clEnqueueWriteBuffer` commands can be removed as SYCL will handle the memory movement as long as the accessors are correct. Any other OpenCL constructs can now be removed and the code should run. Check the compilation section for how to compile.
 
 ```
 //OpenCL Host Code
