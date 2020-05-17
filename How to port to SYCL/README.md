@@ -171,4 +171,4 @@ There are many different SYCL implementations to choose from. This guide provide
 
 **hipSYCL**
 
-**ComputeCPP
+**ComputeCPP**
