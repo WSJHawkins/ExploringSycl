@@ -101,7 +101,7 @@ size_t wgroup_size = WORK_GROUP_SIZE;
 
 Step 3. Change all of the Kokkos View constructs over to Sycl Buffer constructs. Be careful here with pointers to make sure the data is held correctly. An example piece of code is present in this folder to show how you can safely create buffers and queues and pass them between functions for use
 
-Step 4. Find all deep copies. If it is from host to device you do not need to do anything as long as your kernels have accessors set up. If the copy is from device to host, find where the data in the host mirror is used and replace it with a host accessor as shown below. Now remove all host mirrors and deep copies.\\
+Step 4. Find all deep copies. If it is from host to device you do not need to do anything as long as your kernels have accessors set up. If the copy is from device to host, find where the data in the host mirror is used and replace it with a host accessor as shown below. Now remove all host mirrors and deep copies.
 ```
 //Deep Copy - copies from 2nd arg to 1st
 Kokkos::deep_copy(host_mirror, buffer);
