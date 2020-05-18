@@ -1,7 +1,4 @@
-# Exploring The Sycl Programming Model
-
-***WORK IN PROGRESS***
-
+# Exploring the performance portability of the SYCL language
 
 This repository contains all the code needed to replicate any of my findings from my dissertation. The instructions to run each program are found in their respective folders.
 
