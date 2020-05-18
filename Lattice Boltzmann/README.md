@@ -15,3 +15,5 @@ All the makefiles will produce an output file to run called ```d2q9-bgk```. To r
 Change out ```128x128``` for other input sizes as applicable. The following sizes are provided: ```128x128```,```128x256```,```256x256```,```1024x1024```,```2048x2048```,```4096x4096```. 
 
 When run the program will produce two files: ```av_vels.dat``` and ```final_state.dat```. For the ```1024x1024``` size and below, this output can be checked automatically. This is done by typing ```make check CheckSize=128x128``` replacing the size parameter where necessary.
+
+There is a known bug when trying to run this using LLVM SYCL on a Intel Skylake. It will crash at runtime with a segmentation fault caused by lines 312-320 and 518-526. I have tried removing the isgreater function and changing it from ternary operators to if statements. If you are able to fix this please submit a pull request.
