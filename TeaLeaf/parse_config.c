@@ -17,8 +17,8 @@ void read_config(Settings* settings, State** states)
   FILE* tea_in = fopen(settings->tea_in_filename, "r");
   if(!tea_in)
   {
-    die(__LINE__, __FILE__, 
-        "Could not open input file %s\n", 
+    die(__LINE__, __FILE__,
+        "Could not open input file %s\n",
         settings->tea_in_filename);
   }
 
@@ -51,9 +51,9 @@ void read_config(Settings* settings, State** states)
   print_to_log(settings, "\thalo_depth = %d\n", settings->halo_depth);
   print_to_log(settings, "\tcheck_result = %d\n", settings->check_result);
   print_to_log(settings, "\tcoefficient = %d\n", settings->coefficient);
-  print_to_log(settings, 
+  print_to_log(settings,
       "\tnum_chunks_per_rank = %d\n", settings->num_chunks_per_rank);
-  print_to_log(settings, 
+  print_to_log(settings,
       "\tsummary_frequency = %d\n", settings->summary_frequency);
 
   for(int ss = 0; ss < settings->num_states; ++ss)
@@ -185,9 +185,9 @@ void read_settings(FILE* tea_in, Settings* settings)
   }
 
   // Set the cell widths now
-  settings->dx = (settings->grid_x_max-settings->grid_x_min) / 
+  settings->dx = (settings->grid_x_max-settings->grid_x_min) /
     (double)settings->grid_x_cells;
-  settings->dy = (settings->grid_y_max-settings->grid_y_min) / 
+  settings->dy = (settings->grid_y_max-settings->grid_y_min) /
     (double)settings->grid_y_cells;
 }
 
@@ -250,13 +250,13 @@ int read_states(FILE* tea_in, Settings* settings, State** states)
       // State 1 is the default state so geometry irrelevant
       if(state_num > 1)
       {
-        read_value(line, "xmin", word); 
+        read_value(line, "xmin", word);
         state->x_min = atof(word) + settings->dx/100.0;
-        read_value(line, "ymin", word); 
+        read_value(line, "ymin", word);
         state->y_min = atof(word) + settings->dy/100.0;
-        read_value(line, "xmax", word); 
+        read_value(line, "xmax", word);
         state->x_max = atof(word) - settings->dx/100.0;
-        read_value(line, "ymax", word); 
+        read_value(line, "ymax", word);
         state->y_max = atof(word) - settings->dy/100.0;
 
         read_value(line, "geometry", word);
@@ -269,7 +269,7 @@ int read_states(FILE* tea_in, Settings* settings, State** states)
         {
           state->geometry = CIRCULAR;
 
-          read_value(line, "radius", word); 
+          read_value(line, "radius", word);
           state->radius = atof(word);
         }
         else if(strmatch(word, "point"))
@@ -364,4 +364,3 @@ bool starts_get_double(const char* key, const char* line, char* word, double* va
 
   return false;
 }
-

@@ -45,7 +45,7 @@
 #define DEF_IS_OFFLOAD false
 
 // The type of solver to be run
-typedef enum 
+typedef enum
 {
     JACOBI_SOLVER,
     CG_SOLVER,
@@ -106,7 +106,7 @@ typedef struct Settings
     char* solver_name;
 
     Kernel_Language kernel_language;
-    
+
     // Field dimensions
     int grid_x_cells;
     int grid_y_cells;
@@ -118,6 +118,7 @@ typedef struct Settings
 
     double dx;
     double dy;
+
 
 } Settings;
 

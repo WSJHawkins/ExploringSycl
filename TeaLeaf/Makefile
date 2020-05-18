@@ -1,8 +1,8 @@
 # Used specified parameters
 KERNELS   = sycl
-CPROFILER = yes
+CPROFILER = no
 DEBUG     = no
-OPTIONS   = -DNO_MPI
+#OPTIONS  = -DNO_MPI
 CC        = clang
 CPP       = clang++
 COMPILER  = GNU

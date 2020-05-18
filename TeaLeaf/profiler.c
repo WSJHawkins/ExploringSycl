@@ -48,18 +48,20 @@ void profiler_end_timer(struct Profile* profile, const char* entry_name)
   {
     profile->profiler_entry_count++;
     strcpy(profile->profiler_entries[ii].name, entry_name);
+    profile->profiler_entries[ii].time = 0;
+    profile->profiler_entries[ii].calls= 0;
   }
 
   // Update number of calls and time
 #ifdef __APPLE__
   double elapsed = (profile->profiler_end-profile->profiler_start)*1.0E-9;
 #else
-  double elapsed = 
-    (profile->profiler_end.tv_sec - profile->profiler_start.tv_sec) + 
+  double elapsed =
+    (profile->profiler_end.tv_sec - profile->profiler_start.tv_sec) +
     (profile->profiler_end.tv_nsec - profile->profiler_start.tv_nsec)*1.0E-9;
 #endif
 
-  profile->profiler_entries[ii].time += elapsed; 
+  profile->profiler_entries[ii].time += elapsed;
   profile->profiler_entries[ii].calls++;
 }
 
@@ -74,8 +76,8 @@ void profiler_print_full_profile(struct Profile* profile)
   for(int ii = 0; ii < profile->profiler_entry_count; ++ii)
   {
     total_elapsed_time += profile->profiler_entries[ii].time;
-    printf("%-30s%8d%20.03F\n", profile->profiler_entries[ii].name, 
-        profile->profiler_entries[ii].calls, 
+    printf("%-30s%8d%20.03F\n", profile->profiler_entries[ii].name,
+        profile->profiler_entries[ii].calls,
         profile->profiler_entries[ii].time);
   }
 
@@ -88,8 +90,8 @@ void profiler_print_simple_profile(struct Profile* profile)
 {
   for(int ii = 0; ii < profile->profiler_entry_count; ++ii)
   {
-    printf("\033[1m\033[30m%s\033[0m: %.3lfs (%d calls)\n", 
-        profile->profiler_entries[ii].name, 
+    printf("\033[1m\033[30m%s\033[0m: %.3lfs (%d calls)\n",
+        profile->profiler_entries[ii].name,
         profile->profiler_entries[ii].time,
         profile->profiler_entries[ii].calls);
   }
@@ -110,4 +112,3 @@ int profiler_get_profile_entry(struct Profile* profile, const char* entry_name)
       entry_name);
   exit(1);
 }
-

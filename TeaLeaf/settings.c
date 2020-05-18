@@ -5,19 +5,19 @@
 
 void set_default_settings(Settings* settings)
 {
-  settings->test_problem_filename = 
+  settings->test_problem_filename =
     (char*)malloc(sizeof(char)*MAX_CHAR_LEN);
-  strncpy(settings->test_problem_filename, 
+  strncpy(settings->test_problem_filename,
       DEF_TEST_PROBLEM_FILENAME, MAX_CHAR_LEN);
 
-  settings->tea_in_filename = 
+  settings->tea_in_filename =
     (char*)malloc(sizeof(char)*MAX_CHAR_LEN);
-  strncpy(settings->tea_in_filename, 
+  strncpy(settings->tea_in_filename,
       DEF_TEA_IN_FILENAME, MAX_CHAR_LEN);
 
-  settings->tea_out_filename = 
+  settings->tea_out_filename =
     (char*)malloc(sizeof(char)*MAX_CHAR_LEN);
-  strncpy(settings->tea_out_filename, 
+  strncpy(settings->tea_out_filename,
       DEF_TEA_OUT_FILENAME, MAX_CHAR_LEN);
 
   settings->tea_out_fp = NULL;
@@ -47,15 +47,16 @@ void set_default_settings(Settings* settings)
   settings->num_ranks = DEF_NUM_RANKS;
   settings->halo_depth = DEF_HALO_DEPTH;
   settings->is_offload = DEF_IS_OFFLOAD;
-  settings->kernel_profile = 
+  settings->kernel_language = DEF_KERNEL_LANGUAGE;
+  settings->kernel_profile =
     (struct Profile*)malloc(sizeof(struct Profile));
-  settings->application_profile = 
+  settings->application_profile =
     (struct Profile*)malloc(sizeof(struct Profile));
-  settings->wallclock_profile = 
+  settings->wallclock_profile =
     (struct Profile*)malloc(sizeof(struct Profile));
   settings->fields_to_exchange =
     (bool*)malloc(sizeof(bool)*NUM_FIELDS);
-  settings->solver_name = 
+  settings->solver_name =
     (char*)malloc(sizeof(char)*MAX_CHAR_LEN);
 }
 
@@ -81,4 +82,3 @@ bool is_fields_to_exchange(Settings* settings)
 
   return false;
 }
-
