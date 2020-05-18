@@ -8,7 +8,7 @@ For the SYCL Kernels use the following make command specifying the SYCL compiler
 Enter ```LLVM``` for Intel's LLVM SYCL Compiler; Enter ```computeCPP``` for Codeplay's ComputeCPP compiler and finally enter ```hipSYCL``` to use hipSYCL. When using hipSYCL also pass the following arguements to make ```hip_Arch = gfx906 hip_Platform = rocm``` to specify your architecture and platform.
 The optimisation level is set at ```O3``` but if you wish to override this just enter ```OptimisationLevel=O3``` changing out ```O3``` for your desired level.
 
-Note: for the LLVM compilation you may get an error along the lines of 'fatal error: 'cstdint' file not found'. This is dependent on how your system is set up. This Makefile works on the Bristol HPC Zoo, Remove or change the following section from the Makefile and try again: ```--gcc-toolchain=/nfs/software/x86_64/gcc/7.4.0```. 
+Note: for the LLVM compilation you may get an error along the lines of 'fatal error: 'cstdint' file not found'. This is dependent on how your system is set up. This Makefile works on the Bristol HPC Zoo. To fix this remove or change the following section from the Makefile and try again: ```--gcc-toolchain=/nfs/software/x86_64/gcc/7.4.0```. 
 
 
 ## To Run
