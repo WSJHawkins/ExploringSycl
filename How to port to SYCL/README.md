@@ -168,10 +168,16 @@ auto hostAcc = buffer.get_access<access::mode::read>();
 ```
 
 ## Compilation
-There are many different SYCL implementations to choose from. This guide provides a guide on compiling with Codeplay's ComputeCPP, hipSYCL and Intel's LLVM SYCL, also known as DPC++ or OneAPI.
+There are many different SYCL implementations to choose from. This document provides commands to compile with Codeplay's ComputeCPP, hipSYCL and Intel's LLVM SYCL, also known as DPC++ or OneAPI. Tha Lattice Boltzmann and TeaLeaf codes also contain Makefiles for all three compilers which may prove useful.
 
 **LLVM SYCL**
+Use the following command changing ```-O3``` for your desired optimisation level:
+```clang++ -O3 -std=c++11 -lOpenCL -fsycl programname.cpp -o ouputFile```
 
 **hipSYCL**
+Use the following command changing ```-O3``` for your desired optimisation level:
+```syclcc-clang -std=c++17 -O3 --hipsycl-platform=rocm programname.cpp -o outputFile```
+You also need to specify the backend you want hipSYCL to use. Do this by changing the ```--hipsycl-platform=rocm``` flag to ```ROCm``` for AMD GPUs, ```cuda``` for Nvidia GPUs and ```cpu``` for CPUs using OpenMP. If compiling for a GPU the following flag should be used ```--hipsycl-gpu-arch=gfx906``` replacing ```gfx906``` for the architecure you are targetting.
 
 **ComputeCPP**
+ComputeCPP requires two passes to compile and as such is more complicated. An example Makefile has been included in this repository.
