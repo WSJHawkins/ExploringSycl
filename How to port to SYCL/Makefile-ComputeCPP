@@ -1,0 +1,18 @@
+SRC=programName
+EXE=outputFile
+COMPUTECPP_FLAGS = $(shell $(COMPUTECPP_PACKAGE_ROOT_DIR)/bin/computecpp_info --dump-device-compiler-flags)
+EXTRA_FLAGS=
+
+#lComputeCpp
+computecpp:  $(SRC).o $(SRC).sycl
+	$(CXX) -O3 -std=c++11 -DSYCL $(SRC).o $(EXTRA_FLAGS) -L$(COMPUTECPP_PACKAGE_ROOT_DIR)/lib -lComputeCpp -lOpenCL -Wl,--rpath=$(COMPUTECPP_PACKAGE_ROOT_DIR)/lib/ -o $(EXE)
+
+$(SRC).o: $(SRC).cpp $(SRC).sycl
+	$(CXX) -O3 -std=c++11 -DSYCL $(SRC).cpp -c -I$(COMPUTECPP_PACKAGE_ROOT_DIR)/include -include $(SRC).sycl $(EXTRA_FLAGS) -o $@
+
+$(SRC).sycl: $(SRC).cpp
+	$(COMPUTECPP_PACKAGE_ROOT_DIR)/bin/compute++ -DSYCL $(SRC).cpp $(COMPUTECPP_FLAGS) -c -I$(COMPUTECPP_PACKAGE_ROOT_DIR)/include -o $@
+
+.PHONY: clean
+clean:
+	rm -f $(SRC).sycl $(SRC).o
