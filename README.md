@@ -1,6 +1,6 @@
 # Exploring the performance portability of the SYCL language
 
-This repository contains all the code needed to replicate any of my findings from my dissertation. The instructions to run each program are found in their respective folders.
+This repository contains all the code needed to replicate any of my findings from my dissertation. The instructions to run each program are found in their respective folders. 
 
 I have ported an OpenCL version of a Lattice Boltzmann Code to SYCL. The original OpenCL and an OpenMP version are provided for comparison.
 
